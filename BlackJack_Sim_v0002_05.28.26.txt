@@ -1,0 +1,501 @@
+import pandas as pd
+import random as rd
+import numpy as np
+
+# Deck Builder
+suits_list = [
+    'Spades'
+    ,'Hearts'
+    ,'Clubs'
+    ,'Diamonds'
+]
+
+rank_list = [
+    'Ace'
+    ,'King'
+    ,'Queen'
+    ,'Jack'
+    ,'Ten'
+    ,'Nine'
+    ,'Eight'
+    ,'Seven'
+    ,'Six'
+    ,'Five'
+    ,'Four'
+    ,'Three'
+    ,'Two'
+]
+
+single_deck = []
+
+for suit in suits_list:
+    for rank in rank_list:
+        single_deck.append(f'{rank} {suit}')
+
+# not necessary for final run, delete
+#len(single_deck)
+#type(single_deck)
+#print(single_deck)
+
+# Value Assigner (for later)
+##note, not sure how to handle ace 11/1 switcher
+## choosing Ace = 11 for now
+rank_value_dict = {'Ace': 11
+                   ,'King':10
+                   ,'Queen':10
+                   ,'Jack':10
+                   ,'Ten':10
+                   ,'Nine':9
+                   ,'Eight':8
+                   ,'Seven':7
+                   ,'Six':6
+                   ,'Five':5
+                   ,'Four':4
+                   ,'Three':3
+                   ,'Two':2
+}
+
+live_deck = rd.sample(single_deck, len(single_deck))
+
+## playing single hand
+def play_hand():
+
+    max_total = 21
+    
+    ##player hand
+    player_hand = []
+    player_hand_total = 0
+
+    ##dealer hand
+    dealer_hand = []
+    dealer_hand_total = 0
+
+    ## INITIAL DEAL
+    #first player card draw
+    player_hand.append(live_deck.pop())
+
+    #first dealer card draw
+    dealer_hand.append(live_deck.pop())
+
+    #second player card draw
+    player_hand.append(live_deck.pop())
+
+    #second dealer card draw
+    dealer_hand.append(live_deck.pop())
+
+    AcePlay_Player = False
+    drop_10_toggle_player = False
+    #player card value assign
+    for card in player_hand:
+        rank,suit = card.split()
+        player_hand_total = player_hand_total + rank_value_dict[rank]
+        if rank == 'Ace':
+            AcePlay_Player = True
+
+
+    AcePlay_Dealer = False
+    drop10_toggle_dealer = False
+    #dealer card value assign
+    for card in dealer_hand:
+        rank,suit = card.split()
+        dealer_hand_total = dealer_hand_total + rank_value_dict[rank]
+        if rank == 'Ace':
+            AcePlay_Dealer = True
+
+    print(f"Player's Current Hand: {player_hand}. Hand Total: {player_hand_total}")
+    print(f"Dealer Showing: {dealer_hand[0]}. Dealer Showing Total: {rank_value_dict[dealer_hand[0].split()[0]]}")
+    #print(f"Number of Cards Remaining in Deck: {len(live_deck)}")
+
+    if player_hand_total == 21:
+        return f'Blackjack!'
+
+    if player_hand_total == 21:
+        return f'Blackjack!'
+            
+    ##user input
+    # '1' and '0' are strings
+    user_data = '1'
+    drop_10_toggle_player = False
+    
+    while user_data != '0':
+
+        #note, dont know how to code in space in print, temporary solution in another print
+        print(f"You have {player_hand} for a total of {player_hand_total}.")  
+        print(f"\n")
+        print(f"Dealer is showing {dealer_hand[0]} for a total of {rank_value_dict[dealer_hand[0].split()[0]]}.")
+        print(f"\n")
+        print(f"Press '1' to HIT, Press '0' to STAND")
+        user_data = input()
+        
+        if user_data == '1':
+
+            print(f'\n')
+            print(f'Player HITS')
+            #draw card function, embed in deal hand function inside 'hit'
+            #ensure player_hand_total also updates
+            #ensure total cards left updates
+            new_card = live_deck.pop()
+            
+            player_hand.append(new_card)
+            
+            rank,suit = new_card.split()
+            
+            player_hand_total = player_hand_total + rank_value_dict[rank]
+            
+            if rank == 'Ace':
+                AcePlay_Player = True
+        
+            if player_hand_total > 21:
+                print(f'player hand > 21')
+                if AcePlay_Player == True:
+                    if drop_10_toggle_player == False: #include single-use drop10 trigger
+                        player_hand_total = player_hand_total - 10
+                        drop_10_toggle_player = True
+                    
+                    else:
+                        print(f'Player Bust')
+                        return 
+                else:
+                    print(f'PLayer goes Boom')
+                    return 
+            ###
+        elif user_data == '0':
+            print(f'Player STANDS')
+            ###
+        else:
+            print(f"INCORRECT ENTRY")
+
+    drop_10_toggle_dealer = False
+    
+    if dealer_hand_total == 21:
+        print(f'Blackjack!')
+        
+    #greater 17
+    if dealer_hand_total > 17:
+        print(f'Dealer Stands')
+            
+    #equal 17
+    if dealer_hand_total == 17: #note, hit on soft 17'
+        print(f'equaller')
+        if AcePlay_Dealer == False:
+        
+            print(f'Dealer Stands')
+        
+        else:
+            
+            player_hand_total = player_hand_total - 10
+            
+            drop_10_player = True
+            
+            new_card = dealer_hand.append(live_deck.pop())
+        
+            dealer_hand.append(new_card)
+    
+            rank,suit = new_card.split()
+        
+            dealer_hand_total = dealer_hand_total + rank_value_dict[rank]
+    
+    #less 17
+    if dealer_hand_total < 17:
+    
+        new_card = live_deck.pop()
+        
+        dealer_hand.append(new_card)
+    
+        rank,suit = new_card.split()     
+        
+        dealer_hand_total = dealer_hand_total + rank_value_dict[rank]
+        
+        if rank == 'Ace':
+            AcePlay_Dealer = True
+        print(f'dealers hand is now: {dealer_hand}')
+
+
+
+
+        
+# **********************************
+# **********************************
+# *********Play Game Here********
+# **********************************
+# **********************************
+
+def play_game():
+    # previously '1' = hit, '0' = stand
+    # note, need for both upper case and lower case
+
+    # give the while-loop something to chew on (establish variable for while-loop)
+    player_choice = 'y'
+
+    while player_choice != 'n':
+        play_hand() #function above
+        print(f'Player select Y to continue playing, N to stop')
+        player_choice = input() 
+        
+#    if user_data == 'n':
+#        break
+#    else:
+#        play_hand()
+
+    
+
+## Testing Environ.
+play_hand()
+play_game()
+
+# not necessary for final run, delete
+print(live_deck)
+len(live_deck)
+
+# confirming randomness 
+card_counts_dict = {}
+
+for i in live_deck:
+    if i not in card_counts_dict:
+        card_counts_dict[i] = 1
+    else:
+        card_counts_dict[i] = card_counts_dict[i] + 1
+
+card_counts_dict
+
+
+len(live_deck_tester)
+print(live_deck_tester)
+## shuffling deck
+live_deck = rd.sample(single_deck, len(single_deck)) ## note, copy will be on unshuffled deck.
+len(live_deck_tester)
+print(live_deck_tester)
+
+live_deck_tester_copy = live_deck_tester.copy()
+max_total = 21
+
+##player hand
+player_hand = []
+player_hand_total = 0
+
+##dealer hand
+dealer_hand = []
+dealer_hand_total = 0
+
+## INITIAL DEAL
+#first player card draw
+player_hand.append(live_deck_tester_copy.pop())
+
+#first dealer card draw
+dealer_hand.append(live_deck_tester_copy.pop())
+
+#second player card draw
+player_hand.append(live_deck_tester_copy.pop())
+
+#second dealer card draw
+dealer_hand.append(live_deck_tester_copy.pop())
+
+AcePlay_Player = False
+drop_10_toggle_player = False
+#player card value assign
+for card in player_hand:
+    rank,suit = card.split()
+    player_hand_total = player_hand_total + rank_value_dict[rank]
+    if rank == 'Ace':
+        AcePlay_Player = True
+
+
+AcePlay_Dealer = False
+drop10_toggle_dealer = False
+#dealer card value assign
+for card in dealer_hand:
+    rank,suit = card.split()
+    dealer_hand_total = dealer_hand_total + rank_value_dict[rank]
+    if rank == 'Ace':
+        AcePlay_Dealer = True
+
+print(AcePlay_Player)
+
+aceHand = 'Ace Spades'
+player_hand[1] = aceHand
+AcePlay_Player = True
+player_hand_total = 18
+
+print(AcePlay_Player)
+
+print(drop_10_toggle_player)
+
+
+
+## testing player
+
+if player_hand_total == 21:
+    print(f'Blackjack!')
+        
+##user input
+# '1' and '0' are strings
+user_data = '1'
+drop_10_toggle_player = False
+
+while user_data != '0':
+    
+    print(f"You have {player_hand} for a total of {player_hand_total}. Dealer is showing {dealer_hand[0]} for a total of {rank_value_dict[dealer_hand[0].split()[0]]}. Press '1' to HIT, Press '0' to STAND")
+    user_data = input()
+    
+    if user_data == '1':
+
+        print(f'Player HITS')
+        #draw card function, embed in deal hand function inside 'hit'
+        #ensure player_hand_total also updates
+        #ensure total cards left updates
+        new_card = live_deck_tester_copy.pop()
+        
+        player_hand.append(new_card)
+        
+        rank,suit = new_card.split()
+        
+        player_hand_total = player_hand_total + rank_value_dict[rank]
+        
+        if rank == 'Ace':
+            AcePlay_Player = True
+    
+        if player_hand_total > 21:
+            if AcePlay_Player == True:
+                if drop_10_toggle_player == False: #include single-use drop10 trigger
+                    player_hand_total = player_hand_total - 10
+                    drop_10_toggle_player = True
+                
+                else:
+                    print(f'Player BUSTS')
+            else:
+                print(f'Player goes BOOM')
+        ###
+    elif user_data == '0':
+        print(f'Player STANDS')
+        ###
+    else:
+        print(f"INCORRECT ENTRY")
+
+print(f'dealer hand:{dealer_hand}')
+print(f'dealer hand total: {dealer_hand_total}')
+print(live_deck_tester_copy)
+len(live_deck_tester_copy)
+print(player_hand)
+
+##testing dealer
+
+#drop_10_toggle_dealer = False 
+
+if dealer_hand_total == 21:
+    print(f'Blackjack!')
+    
+#greater 17
+if dealer_hand_total > 17:
+    print(f'Dealer Stands')
+        
+#equal 17
+if dealer_hand_total == 17: #note, hit on soft 17'
+    print(f'equaller')
+    if AcePlay_Dealer == False:
+    
+        print(f'Dealer Stands')
+    
+    else:
+        
+        player_hand_total = player_hand_total - 10
+        
+        drop_10_player = True
+        
+        new_card = dealer_hand.append(live_deck_tester_copy.pop())
+    
+        dealer_hand.append(new_card)
+
+        rank,suit = new_card.split()
+    
+        dealer_hand_total = dealer_hand_total + rank_value_dict[rank]
+
+#less 17
+if dealer_hand_total < 17:
+
+    new_card = live_deck_tester_copy.pop()
+    
+    dealer_hand.append(new_card)
+
+    rank,suit = new_card.split()     
+    
+    dealer_hand_total = dealer_hand_total + rank_value_dict[rank]
+    
+    if rank == 'Ace':
+        AcePlay_Dealer = True
+    print(f'dealers hand is now: {dealer_hand}')
+#     if dealer_hand_total == 17 and AcePlay_Dealer == True: ## **and toggle == false: 
+#         #subtract 10
+#         #include drop_10 dealer toggle (note, unique toggle for dealer and player)
+    
+# # if dealer_hand_total > 21:
+# #     if AcePlayer == False:
+# #         print(f'Dealer BUSTS')
+
+player_hand.append(live_deck_copy.pop())
+
+for card in player_hand:
+    rank,suit = card.split()
+    player_hand_total = player_hand_total + rank_value_dict[rank]
+
+print(f"Player's Current Hand: {player_hand}. Hand Total: {player_hand_total}")
+print(f"Dealer's Hand: {dealer_hand}. Hand Total: {dealer_hand_total}")
+print(f"Number of Cards Remaining in Deck: {len(live_deck_copy)}")
+
+dealer_hand.append(live_deck_copy.pop())
+
+for card in dealer_hand:
+    rank,suit = card.split()
+    dealer_hand_total = dealer_hand_total + rank_value_dict[rank]
+
+print(f"Player's Current Hand: {player_hand}. Hand Total: {player_hand_total}")
+print(f"Dealer's Hand: {dealer_hand}. Hand Total: {dealer_hand_total}")
+print(f"Number of Cards Remaining in Deck: {len(live_deck_copy)}")
+
+player_hand.append(live_deck_copy.pop())
+
+for card in player_hand:
+    rank,suit = card.split()
+    player_hand_total = player_hand_total + rank_value_dict[rank]
+    
+print(f"Player's Current Hand: {player_hand}. Hand Total: {player_hand_total}")
+print(f"Dealer's Hand: {dealer_hand}. Hand Total: {dealer_hand_total}")
+print(f"Number of Cards Remaining in Deck: {len(live_deck_copy)}")
+
+dealer_hand.append(live_deck_copy.pop())
+
+for card in dealer_hand:
+    rank,suit = card.split()
+    dealer_hand_total = dealer_hand_total + rank_value_dict[rank]
+    
+print(f"Player's Current Hand: {player_hand}. Hand Total: {player_hand_total}")
+print(f"Dealer's Hand: {dealer_hand}. Hand Total: {dealer_hand_total}")
+print(f"Number of Cards Remaining in Deck: {len(live_deck_copy)}")
+
+# Eight-Deck (for later)
+eight_deck = []
+for card in single_deck:
+    for i in range(0,8):
+        eight_deck.append(card)
+
+#conditional below, on user input
+## '1' and '0' are strings
+user_data = '1'
+
+while user_data != '0':
+    print(f"You have {player_hand} for a total of {player_hand_total}. The dealer is showing {dealer_hand[1]}. Press '1' to HIT, Press '0' to STAND")
+    user_data = input()
+    
+    if user_data == '1':
+        #draw card function, embed in deal hand function inside 'hit'
+        #ensure player_hand_total also updates
+        #ensure total cards left updates
+        #
+        print(f'Player HITs')
+        ###
+    elif user_data == '0':
+        print(f'Player STANDS')
+        ###
+    else:
+        print(f"INCORRECT ENTRY")
+
+len(live_deck_copy)    
