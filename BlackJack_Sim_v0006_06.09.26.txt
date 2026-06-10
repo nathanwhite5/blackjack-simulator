@@ -107,9 +107,12 @@ def play_hand():
     #     print(f'Dealer has Blackjack!')
     #     return 
 
-
+    #
+    #input dealer toggles
     AcePlay_Player = False
+    AcePlay_Dealer = False
     drop_10_toggle_player = False
+    drop_10_toggle_dealer = False
     pair_toggle_player = False     #split handled 
     double_down_toggle = False
 
@@ -125,8 +128,6 @@ def play_hand():
             AcePlay_Player = True        
             
     ###
-    AcePlay_Dealer = False
-    drop10_toggle_dealer = False
     #dealer card value assign
     for card in dealer_hand:
         rank,suit = card.split()
@@ -206,10 +207,10 @@ def play_hand():
         print(f"You have {player_hand} for a total of {player_hand_total}.")  
         print(f"\n")
         print(f"Dealer is showing {dealer_face} for a total of {rank_value_dict[dealer_hand[0].split()[0]]}.")
-        print(f"\n")
                 
         if len(player_hand) == 2:
-            
+
+            print(f'\n')
             print(f"Press '1' to HIT, Press '0' to STAND, Press '6' to Double-down")
 
             user_data = input()
@@ -227,11 +228,11 @@ def play_hand():
                 player_hand.append(new_card)
     
                 rank,suit = new_card.split()
+
+                player_hand_total = player_hand_total + rank_value_dict[rank]
     
                 print(f'\n')
-                print(f'You have drawn the {rank} of {suit}')
-                
-                player_hand_total = player_hand_total + rank_value_dict[rank]
+                print(f'You have drawn the {rank} of {suit}. Player hand is {player_hand} for a total of {player_hand_total}')
                 
                 if rank == 'Ace':
                     AcePlay_Player = True
@@ -272,11 +273,11 @@ def play_hand():
                 player_hand.append(new_card)
     
                 rank,suit = new_card.split()
+
+                player_hand_total = player_hand_total + rank_value_dict[rank]
     
                 print(f'\n')
-                print(f'You have drawn the {rank} of {suit}')
-                
-                player_hand_total = player_hand_total + rank_value_dict[rank]
+                print(f'You have drawn the {rank} of {suit}. Player hand is {player_hand} for a total of {player_hand_total}')
                 
                 if rank == 'Ace':
                     AcePlay_Player = True
@@ -299,7 +300,6 @@ def play_hand():
             else:
                 print(f'\n')
                 print(f"INCORRECT ENTRY")
-                print(f'\n')
 
         else:
             
@@ -320,11 +320,11 @@ def play_hand():
                 player_hand.append(new_card)
     
                 rank,suit = new_card.split()
-    
-                print(f'\n')
-                print(f'You have drawn the {rank} of {suit}')
                 
                 player_hand_total = player_hand_total + rank_value_dict[rank]
+                
+                print(f'\n')
+                print(f'You have drawn the {rank} of {suit}. Player hand is {player_hand} for a total of {player_hand_total}')
                 
                 if rank == 'Ace':
                     AcePlay_Player = True
@@ -356,7 +356,7 @@ def play_hand():
 
 
     ## dEALER TINGS
-    drop_10_toggle_dealer = False
+    #drop_10_toggle_dealer = False
 
     # redundant?
     #if dealer_hand_total == 21:
@@ -413,11 +413,13 @@ def play_hand():
                 return f'draw'
         else:
             
-            player_hand_total = player_hand_total - 10
+            #player_hand_total = player_hand_total - 10
+
+            dealer_hand_total = dealer_hand_total - 10
             
             drop_10_player = True
             
-            new_card = dealer_hand.append(live_deck.pop())
+            #new_card = dealer_hand.append(live_deck.pop())
         
             dealer_hand.append(new_card)
     
@@ -425,7 +427,8 @@ def play_hand():
         
             dealer_hand_total = dealer_hand_total + rank_value_dict[rank]
 
-            print(f'The Dealers hand is now: {dealer_hand}')
+            print(f'\n')
+            print(f'The Dealers hand is now {dealer_hand} for a total of {dealer_hand_total}')
     
     #less 17
     while dealer_hand_total < 17:
@@ -434,7 +437,6 @@ def play_hand():
 
         print(f'\n')
         print(f'Dealer draws {new_card}')
-        print(f'\n')
         
         dealer_hand.append(new_card)
     
@@ -475,6 +477,69 @@ def play_hand():
 
 
 
+        
+# **********************************
+# **********************************
+# *********Play Game Here********
+# **********************************
+# **********************************
+
+#bet experiment
+def play_game():
+    
+    print(f'\n')
+    print(f'Welcome! Please state how many coins are in your purse (integer/whole-dollar increment)?')
+    coin_purse = float(input())
+
+    print(f'\n')
+    print(f'Your current purse is {coin_purse}, how much will you bet on this hand (integer/whole-dollar increment)?')
+    bet = float(input())
+
+    print(f'\n')
+    print(f'Your current bet is {bet} coins')
+    
+    #live_deck_len = len(live_deck)
+    #while len(live_deck) >= live_deck_len/2:
+    # previously '1' = hit, '0' = stand
+    # note, need for both upper case and lower case
+
+    # give the while-loop something to chew on (establish variable for while-loop)
+    player_choice = 'y'
+
+    while player_choice != 'n':
+        win_loss_outcome = play_hand() 
+
+        if win_loss_outcome == 'win':
+            coin_purse = coin_purse + bet
+            print(f'\n')
+            print(f'You won +{bet} coins. Your current purse is {coin_purse} coins')
+        elif win_loss_outcome == 'lose':
+            coin_purse = coin_purse - bet
+            print(f'\n')
+            print(f'You lost -{bet} coins. Your current purse is {coin_purse} coins')
+        elif win_loss_outcome == 'p_bj':
+            coin_purse = coin_purse + bet*1.5
+            print(f'\n')
+            print(f'You won +{bet*1.5} coins. Your current purse is {coin_purse} coins')
+        elif win_loss_outcome == 'p_dd_win':
+            coin_purse = coin_purse + bet*2
+            print(f'\n')
+            print(f'You won +{bet*2} coins. Your current purse is {coin_purse} coins')
+        elif win_loss_outcome == 'p_dd_lose':
+            coin_purse = coin_purse - bet*2
+            print(f'\n')
+            print(f'You lost -{bet*2} coins. Your current purse is {coin_purse} coins')
+        #function above
+        print(f'\n')
+        print(f'Player select Y to continue playing, N to stop')
+        player_choice = input() 
+        
+#    if user_data == 'n':
+#        break
+#    else:
+#        play_hand()
+
+    
     
 
 ## Testing Environ.
