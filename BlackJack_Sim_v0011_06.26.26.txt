@@ -69,7 +69,7 @@ def play_hand():
     max_total = 21
     
     ##player hand
-    player_hand = [] #matrix !!!! for splitting
+    player_hand = [] ## list of lists
     player_hand_total = 0
     player_hand_size = 0
 
@@ -113,11 +113,13 @@ def play_hand():
     AcePlay_Dealer = False
     drop_10_toggle_player = False
     drop_10_toggle_dealer = False
-    pair_toggle_player = False     #split handled 
+
     double_down_toggle = False
 
-
+    outcome_appender = {} #what is this?
+    
     pair_tracker = []    #split handled, 2d list 
+    pair_toggle_player = False     #split handled 
     
     #player card value assign
     for card in player_hand:
@@ -161,6 +163,7 @@ def play_hand():
     if pair_tracker[0] == pair_tracker[1]:
         player_pair_toggle = True  
 
+
         #note: some type of while loop? for conditional?
     # if player_pair_toggle == True:
     #     print(f"Split? Press '1' to Split, or Press '0' to continue'")
@@ -200,110 +203,269 @@ def play_hand():
     # '1' and '0' are strings
     user_data = '1'
     drop_10_toggle_player = False
+
+    ### 06.14.26, as it stands: when user_data == '1' 
+    ## logic (which logically makes sense?): 
+    #  i. double-down, then split? << no (note, currently what we have)
+    # ii. split, then double-down? << yes (06.14.26, guessing)
+    ### note, ^^ both occur *while len 
+
     
     while user_data == '1':
-
+        
         print(f'\n')
         print(f"You have {player_hand} for a total of {player_hand_total}.")  
         print(f"\n")
         print(f"Dealer is showing {dealer_face} for a total of {rank_value_dict[dealer_hand[0].split()[0]]}.")
-                
-        ## potentially make nice? 
+
         if len(player_hand) == 2:
-
-            print(f'\n')
-            print(f"Press '1' to HIT, Press '0' to STAND, Press '6' to Double-down")
-
-            user_data = input()
-
-            if user_data == '1':
-
+            if player_pair_toggle == True:
                 print(f'\n')
-                print(f'Player HITS')
-                
-                #draw card function, embed in deal hand function inside 'hit'
-                #ensure player_hand_total also updates
-                #ensure total cards left updates
-                new_card = live_deck.pop()
-                
-                player_hand.append(new_card)
-    
-                rank,suit = new_card.split()
+                print(f"Press '1' to HIT, Press '0' to STAND, Press '6' to Double-down, Press 'V' to Split")
 
-                player_hand_total = player_hand_total + rank_value_dict[rank]
+                user_data = input()
+
+                if user_data == '1':
     
-                print(f'\n')
-                print(f'You have drawn the {rank} of {suit}. Player hand is {player_hand} for a total of {player_hand_total}')
+                    print(f'\n')
+                    print(f'Player HITS')
+                    
+                    #draw card function, embed in deal hand function inside 'hit'
+                    #ensure player_hand_total also updates
+                    #ensure total cards left updates
+                    new_card = live_deck.pop()
+                    
+                    player_hand.append(new_card)
+        
+                    rank,suit = new_card.split()
+    
+                    player_hand_total = player_hand_total + rank_value_dict[rank]
+        
+                    print(f'\n')
+                    print(f'You have drawn the {rank} of {suit}. Player hand is {player_hand} for a total of {player_hand_total}')
+                    
+                    if rank == 'Ace':
+                        AcePlay_Player = True
                 
-                if rank == 'Ace':
-                    AcePlay_Player = True
-            
-                if player_hand_total > 21:
-                    #print(f'player hand > 21')
-                    if AcePlay_Player == True:
-                        if drop_10_toggle_player == False: #include single-use drop10 trigger
-                            player_hand_total = player_hand_total - 10
-                            drop_10_toggle_player = True
-                        
+                    if player_hand_total > 21:
+                        #print(f'player hand > 21')
+                        if AcePlay_Player == True:
+                            if drop_10_toggle_player == False: #include single-use drop10 trigger
+                                player_hand_total = player_hand_total - 10
+                                drop_10_toggle_player = True
+                            
+                            else:
+                                print(f'\n')
+                                print(f'Player Bust! Player hand is {player_hand} for a total of {player_hand_total}')
+                                return f'lose'
                         else:
                             print(f'\n')
-                            print(f'Player Bust! Player hand is {player_hand} for a total of {player_hand_total}')
+                            print(f'Player goes Boom! Player hand is {player_hand} for a total of {player_hand_total}')
                             return f'lose'
-                    else:
-                        print(f'\n')
-                        print(f'Player goes Boom! Player hand is {player_hand} for a total of {player_hand_total}')
-                        return f'lose'
-                ###
-            elif user_data == '0':
-                print(f'\n')
-                print(f'Player STANDS')
-                ###
-            elif user_data == '6':
-                
-                double_down_toggle = True
-                print(f'\n')
-                print(f'Player DOUBLES-DOWN!')
+                    ###
+                elif user_data == '0':
+                    print(f'\n')
+                    print(f'Player STANDS')
+                    ###
+                elif user_data == '6':
+                    
+                    double_down_toggle = True
+                    print(f'\n')
+                    print(f'Player DOUBLES-DOWN!')
+        
+                    #bet = bet*2
+                    
+                    #draw card function, embed in deal hand function inside 'hit'
+                    #ensure player_hand_total also updates
+                    #ensure total cards left updates
+                    new_card = live_deck.pop()
+                    
+                    player_hand.append(new_card)
+        
+                    rank,suit = new_card.split()
     
-                #bet = bet*2
+                    player_hand_total = player_hand_total + rank_value_dict[rank]
+        
+                    print(f'\n')
+                    print(f'You have drawn the {rank} of {suit}. Player hand is {player_hand} for a total of {player_hand_total}')
+                    
+                    if rank == 'Ace':
+                        AcePlay_Player = True
                 
-                #draw card function, embed in deal hand function inside 'hit'
-                #ensure player_hand_total also updates
-                #ensure total cards left updates
-                new_card = live_deck.pop()
-                
-                player_hand.append(new_card)
-    
-                rank,suit = new_card.split()
-
-                player_hand_total = player_hand_total + rank_value_dict[rank]
-    
-                print(f'\n')
-                print(f'You have drawn the {rank} of {suit}. Player hand is {player_hand} for a total of {player_hand_total}')
-                
-                if rank == 'Ace':
-                    AcePlay_Player = True
-            
-                if player_hand_total > 21:
-                    #print(f'player hand > 21')
-                    if AcePlay_Player == True:
-                        if drop_10_toggle_player == False: #include single-use drop10 trigger
-                            player_hand_total = player_hand_total - 10
-                            drop_10_toggle_player = True
-                        
+                    if player_hand_total > 21:
+                        #print(f'player hand > 21')
+                        if AcePlay_Player == True:
+                            if drop_10_toggle_player == False: #include single-use drop10 trigger
+                                player_hand_total = player_hand_total - 10
+                                drop_10_toggle_player = True
+                            
+                            else:
+                                print(f'\n')
+                                print(f'Player Bust! Player hand is {player_hand} for a total of {player_hand_total}')
+                                return f'p_dd_lose'
                         else:
                             print(f'\n')
-                            print(f'Player Bust! Player hand is {player_hand} for a total of {player_hand_total}')
+                            print(f'Player goes Boom! Player hand is {player_hand} for a total of {player_hand_total}')
                             return f'p_dd_lose'
-                    else:
+                            
+                # elif user_data == 'v':
+                #     for i,card in enumerate(player_hand):
+                #         player_hand_
+    
+                
+                elif user_input == 'V':
+
+                    player_pair_toggle = False  #must reset for future pairs-split
+                    
+                    splitter_dict = {}
+
+                    for i,card in enumerate(player_hand, start = 1):
+                        
+                        splitter_dict[f'split_hand_{i}'] = [card]
+                        
+                        splitter_dict[f'split_hand_{i}'].append(live_deck.pop())
+
+                    for i, hand in enumerate(splitter_dict):
+
+                        player_hand_total = 0
+                        player_hand_size = 0
+
+                        AcePlay_Player = False
+                        drop_10_toggle_player = False
+                    
+                        double_down_toggle = False
+                    
+                        #outcome_appender = {} #what is this?
+                        
+                        pair_tracker = []    #split handled, 2d list 
+                        pair_toggle_player = False     #split handled 
+                        
+                        #player card value assign
+                        for card in splitter_hand:
+                            rank,suit = card.split()
+                            splitter_hand_total = splitter_hand_total + rank_value_dict[rank]
+                            pair_tracker.append(rank)    #split handled below 
+                            if rank == 'Ace':
+                                AcePlay_Player = True    
+                                
+                        #split_logic 
+                        if pair_tracker[0] == pair_tracker[1]: 
+                            player_pair_toggle = True  
+
+
+
+
+
                         print(f'\n')
-                        print(f'Player goes Boom! Player hand is {player_hand} for a total of {player_hand_total}')
-                        return f'p_dd_lose'
+                        print(f"You have {player_hand} for a total of {player_hand_total}.")  
+                        print(f"\n")
+                        print(f"Dealer is showing {dealer_face} for a total of {rank_value_dict[dealer_hand[0].split()[0]]}.")
+
+
+    
+
+
+                else:
+                    print(f'\n')
+                    print(f"INCORRECT ENTRY")
+
+            
+                
             else:
                 print(f'\n')
-                print(f"INCORRECT ENTRY")
+                print(f"Press '1' to HIT, Press '0' to STAND, Press '6' to Double-down")
+
+                user_data = input()
+    
+                if user_data == '1':
+    
+                    print(f'\n')
+                    print(f'Player HITS')
+                    
+                    #draw card function, embed in deal hand function inside 'hit'
+                    #ensure player_hand_total also updates
+                    #ensure total cards left updates
+                    new_card = live_deck.pop()
+                    
+                    player_hand.append(new_card)
+        
+                    rank,suit = new_card.split()
+    
+                    player_hand_total = player_hand_total + rank_value_dict[rank]
+        
+                    print(f'\n')
+                    print(f'You have drawn the {rank} of {suit}. Player hand is {player_hand} for a total of {player_hand_total}')
+                    
+                    if rank == 'Ace':
+                        AcePlay_Player = True
+                
+                    if player_hand_total > 21:
+                        #print(f'player hand > 21')
+                        if AcePlay_Player == True:
+                            if drop_10_toggle_player == False: #include single-use drop10 trigger
+                                player_hand_total = player_hand_total - 10
+                                drop_10_toggle_player = True
+                            
+                            else:
+                                print(f'\n')
+                                print(f'Player Bust! Player hand is {player_hand} for a total of {player_hand_total}')
+                                return f'lose'
+                        else:
+                            print(f'\n')
+                            print(f'Player goes Boom! Player hand is {player_hand} for a total of {player_hand_total}')
+                            return f'lose'
+                    ###
+                elif user_data == '0':
+                    print(f'\n')
+                    print(f'Player STANDS')
+                    ###
+                elif user_data == '6':
+                    
+                    double_down_toggle = True
+                    print(f'\n')
+                    print(f'Player DOUBLES-DOWN!')
+        
+                    #bet = bet*2
+                    
+                    #draw card function, embed in deal hand function inside 'hit'
+                    #ensure player_hand_total also updates
+                    #ensure total cards left updates
+                    new_card = live_deck.pop()
+                    
+                    player_hand.append(new_card)
+        
+                    rank,suit = new_card.split()
+    
+                    player_hand_total = player_hand_total + rank_value_dict[rank]
+        
+                    print(f'\n')
+                    print(f'You have drawn the {rank} of {suit}. Player hand is {player_hand} for a total of {player_hand_total}')
+                    
+                    if rank == 'Ace':
+                        AcePlay_Player = True
+                
+                    if player_hand_total > 21:
+                        #print(f'player hand > 21')
+                        if AcePlay_Player == True:
+                            if drop_10_toggle_player == False: #include single-use drop10 trigger
+                                player_hand_total = player_hand_total - 10
+                                drop_10_toggle_player = True
+                            
+                            else:
+                                print(f'\n')
+                                print(f'Player Bust! Player hand is {player_hand} for a total of {player_hand_total}')
+                                return f'p_dd_lose'
+                        else:
+                            print(f'\n')
+                            print(f'Player goes Boom! Player hand is {player_hand} for a total of {player_hand_total}')
+                            return f'p_dd_lose'
+                            
+
+                else:
+                    print(f'\n')
+                    print(f"INCORRECT ENTRY")
 
         else:
-            
             print(f"Press '1' to HIT, Press '0' to STAND")
             
             user_data = input()
@@ -350,6 +512,7 @@ def play_hand():
                 print(f'\n')
                 print(f'Player STANDS')
                 ###
+            
             else:
                 print(f'\n')
                 print(f"INCORRECT ENTRY")
@@ -463,7 +626,6 @@ def play_hand():
                     dealer_hand_total = dealer_hand_total - 10 # value is now 16
                     drop_10_dealer = True
             
-            
             print(f'\n')
 
         if dealer_hand_total > 21:
@@ -471,26 +633,6 @@ def play_hand():
             if double_down_toggle == True:
                 return f'p_dd_win'
             return f'win'
-
-        ## paycheck 
-        
-        #  if dealer_hand_total > 21:
-        #     if AcePlay_Dealer == True:
-        #         if drop_10_dealer == False:
-        #             dealer_hand_total = dealer_hand_total - 10
-        #             drop_10_dealer = True
-            
-            
-        #     print(f'\n')
-
-        # if dealer_hand_total > 21:
-            
-        #     print(f'Dealer Busts! You Win!')
-        #     if double_down_toggle == True:
-        #         return f'p_dd_win'
-        #     return f'win'
-
-        
             
         print(f'The Dealers hand is now {dealer_hand} for a total of {dealer_hand_total}')
 
@@ -579,10 +721,220 @@ def play_game():
 #        play_hand()
 
     
+    
 
 ## Testing Environ.
+
+        while user_data == '1':
+    
+            print(f'\n')
+            print(f"You have {player_hand} for a total of {player_hand_total}.")  
+            print(f"\n")
+            print(f"Dealer is showing {dealer_face} for a total of {rank_value_dict[dealer_hand[0].split()[0]]}.")
+                    
+            ## potentially make nice? 
+            if len(player_hand) == 2:
+    
+                print(f'\n')
+                print(f"Press '1' to HIT, Press '0' to STAND, Press '6' to Double-down")
+    
+                user_data = input()
+    
+                if user_data == '1':
+    
+                    print(f'\n')
+                    print(f'Player HITS')
+                    
+                    #draw card function, embed in deal hand function inside 'hit'
+                    #ensure player_hand_total also updates
+                    #ensure total cards left updates
+                    new_card = live_deck.pop()
+                    
+                    player_hand.append(new_card)
+        
+                    rank,suit = new_card.split()
+    
+                    player_hand_total = player_hand_total + rank_value_dict[rank]
+        
+                    print(f'\n')
+                    print(f'You have drawn the {rank} of {suit}. Player hand is {player_hand} for a total of {player_hand_total}')
+                    
+                    if rank == 'Ace':
+                        AcePlay_Player = True
+                
+                    if player_hand_total > 21:
+                        #print(f'player hand > 21')
+                        if AcePlay_Player == True:
+                            if drop_10_toggle_player == False: #include single-use drop10 trigger
+                                player_hand_total = player_hand_total - 10
+                                drop_10_toggle_player = True
+                            
+                            else:
+                                print(f'\n')
+                                print(f'Player Bust! Player hand is {player_hand} for a total of {player_hand_total}')
+                                return f'lose'
+                        else:
+                            print(f'\n')
+                            print(f'Player goes Boom! Player hand is {player_hand} for a total of {player_hand_total}')
+                            return f'lose'
+                    ###
+                elif user_data == '0':
+                    print(f'\n')
+                    print(f'Player STANDS')
+                    ###
+                elif user_data == '6':
+                    
+                    double_down_toggle = True
+                    print(f'\n')
+                    print(f'Player DOUBLES-DOWN!')
+        
+                    #bet = bet*2
+                    
+                    #draw card function, embed in deal hand function inside 'hit'
+                    #ensure player_hand_total also updates
+                    #ensure total cards left updates
+                    new_card = live_deck.pop()
+                    
+                    player_hand.append(new_card)
+        
+                    rank,suit = new_card.split()
+    
+                    player_hand_total = player_hand_total + rank_value_dict[rank]
+        
+                    print(f'\n')
+                    print(f'You have drawn the {rank} of {suit}. Player hand is {player_hand} for a total of {player_hand_total}')
+                    
+                    if rank == 'Ace':
+                        AcePlay_Player = True
+                
+                    if player_hand_total > 21:
+                        #print(f'player hand > 21')
+                        if AcePlay_Player == True:
+                            if drop_10_toggle_player == False: #include single-use drop10 trigger
+                                player_hand_total = player_hand_total - 10
+                                drop_10_toggle_player = True
+                            
+                            else:
+                                print(f'\n')
+                                print(f'Player Bust! Player hand is {player_hand} for a total of {player_hand_total}')
+                                return f'p_dd_lose'
+                        else:
+                            print(f'\n')
+                            print(f'Player goes Boom! Player hand is {player_hand} for a total of {player_hand_total}')
+                            return f'p_dd_lose'
+                else:
+                    print(f'\n')
+                    print(f"INCORRECT ENTRY")
+    
+            else:
+                
+                print(f"Press '1' to HIT, Press '0' to STAND")
+                
+                user_data = input()
+        
+                if user_data == '1':
+        
+                    print(f'\n')
+                    print(f'Player HITS')
+                    
+                    #draw card function, embed in deal hand function inside 'hit'
+                    #ensure player_hand_total also updates
+                    #ensure total cards left updates
+                    new_card = live_deck.pop()
+                    
+                    player_hand.append(new_card)
+        
+                    rank,suit = new_card.split()
+                    
+                    player_hand_total = player_hand_total + rank_value_dict[rank]
+                    
+                    print(f'\n')
+                    print(f'You have drawn the {rank} of {suit}. Player hand is {player_hand} for a total of {player_hand_total}')
+                    
+                    if rank == 'Ace':
+                        AcePlay_Player = True
+                
+                    if player_hand_total > 21:
+                        #print(f'player hand > 21')
+                        if AcePlay_Player == True:
+                            if drop_10_toggle_player == False: #include single-use drop10 trigger
+                                player_hand_total = player_hand_total - 10
+                                drop_10_toggle_player = True
+                            
+                            else:
+                                print(f'\n')
+                                print(f'Player Bust! Player hand is {player_hand} for a total of {player_hand_total}')
+                                return f'lose'
+                        else:
+                            print(f'\n')
+                            print(f'Player goes Boom! Player hand is {player_hand} for a total of {player_hand_total}')
+                            return f'lose'
+                    ###
+                elif user_data == '0':
+                    print(f'\n')
+                    print(f'Player STANDS')
+                    ###
+                else:
+                    print(f'\n')
+                    print(f"INCORRECT ENTRY")
+                    print(f'\n')
+
+
 play_hand()
 play_game()
+
+rank_value_dict = {'Ace': 11
+                   ,'King':10
+                   ,'Queen':10
+                   ,'Jack':10
+                   ,'Ten':10
+                   ,'Nine':9
+                   ,'Eight':8
+                   ,'Seven':7
+                   ,'Six':6
+                   ,'Five':5
+                   ,'Four':4
+                   ,'Three':3
+                   ,'Two':2
+}
+
+player_hand = {}
+
+player_hand = ['Ace Spades', 'Ace Clubs']
+
+player_pair_toggle = False
+
+pair_tracker = []
+
+player_hand_total = 0
+player_hand_size = 0
+
+for card in player_hand:
+    rank,suit = card.split()
+    player_hand_total = player_hand_total + rank_value_dict[rank]
+    pair_tracker.append(rank)    #split handled below 
+    # if rank == 'Ace':
+    #     AcePlay_Player = True   
+    print(pair_tracker)
+
+
+if pair_tracker[0] == pair_tracker[1]:
+    player_pair_toggle = True  
+
+player_pair_toggle
+
+print(f'\n')
+print(f"Press '1' to HIT, Press '0' to STAND, Press '6' to Double-down, Press 'V' to Split")
+
+user_input = input()
+
+if len(player_hand) == 2:
+    print(f'Player hand contains {len(player_hand)} cards')
+
+# if player_pair_toggle == True:
+#     print(f'keep going!')
+# else:
+#     print(f'also, dont give up...')
 
 # not necessary for final run, delete
 print(live_deck)
